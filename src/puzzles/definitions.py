@@ -177,6 +177,12 @@ def puzzle_7():
         def call(out, a, size) -> None:
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             # FILL ME IN (roughly 4 lines)
+            j = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.y
+
+            if i >= size or j >= size:
+                return
+
+            out[i, j] = a[i, j] + 10
 
         return call
 
