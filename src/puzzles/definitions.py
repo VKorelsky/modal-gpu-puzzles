@@ -55,10 +55,10 @@ def puzzle_3():
         def call(out, a, size) -> None:
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 2 lines)
-            
+
             if local_i >= size:
-                return 
-            
+                return
+
             out[local_i] = a[local_i] + 10
 
         return call
@@ -88,6 +88,10 @@ def puzzle_4():
             local_i = cuda.threadIdx.x
             local_j = cuda.threadIdx.y
             # FILL ME IN (roughly 2 lines)
+            if local_j >= size or local_i >= size:
+                return
+
+            out[local_i, local_j] = a[local_i, local_j] + 10
 
         return call
 
