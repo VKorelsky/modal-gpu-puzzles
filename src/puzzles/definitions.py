@@ -145,6 +145,10 @@ def puzzle_6():
         def call(out, a, size) -> None:
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             # FILL ME IN (roughly 2 lines)
+            if i >= size:
+                return
+
+            out[i] = a[i] + 10
 
         return call
 
