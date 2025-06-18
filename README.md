@@ -1,6 +1,6 @@
 # GPU Puzzles on [Modal](https://modal.com/) GPUs
 
-A wrapper around the GPU puzzles by [Sasha Rush](http://rush-nlp.com) ([srush_nlp](https://twitter.com/srush_nlp)), designed to run on [Modal](https://modal.com/) cloud infrastructure.
+A wrapper around the [GPU puzzles](https://github.com/srush/GPU-Puzzles) by [Sasha Rush](http://rush-nlp.com) ([srush_nlp](https://twitter.com/srush_nlp)), designed to run on [Modal](https://modal.com/) cloud infrastructure.
 
 ## Usage
 
