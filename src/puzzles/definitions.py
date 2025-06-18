@@ -490,3 +490,37 @@ def puzzle_14():
     )
     problem.show(sparse=True)
     problem.check()
+
+
+def run_puzzle(i: int):
+    match i:
+        case 1:
+            puzzle_1()
+        case 2:
+            puzzle_2()
+        case 3:
+            puzzle_3()
+        case 4:
+            puzzle_4()
+        case 5:
+            puzzle_5()
+        case 6:
+            puzzle_6()
+        case 7:
+            puzzle_7()
+        case 8:
+            puzzle_8()
+        case 9:
+            puzzle_9()
+        case 10:
+            puzzle_10()
+        case 11:
+            puzzle_11()
+        case 12:
+            puzzle_12()
+        case 13:
+            puzzle_13()
+        case 14:
+            puzzle_14()
+        case _:
+            raise ValueError(f"Invalid puzzle number: {i}")

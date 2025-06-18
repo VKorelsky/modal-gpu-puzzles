@@ -18,11 +18,17 @@ To link the modal cli to your account, you can either:
 Once you're setup, run
 
 ```
-uv run test
+uv run test -p <number_of_puzzle_to_test>
 ```
 
-to execute the puzzle defined in [`src/app.py#L21-23`](src/app.py#L21-23)
+e.g, to check your solution to puzzle 3
+
+```
+uv run test -p 3
+```
+
+To solve a puzzle, update its code in [definitions.py](src/puzzles/definitions.py)
 
 ## Notes
 
-Everything is hardcoded to on an nvidia T4 [source](src/app.py#L18), the cheapest available instance on modal at this time.
+Everything is hardcoded to run on an nvidia T4 [source](src/app.py#L18), the cheapest available instance on modal at this time.
