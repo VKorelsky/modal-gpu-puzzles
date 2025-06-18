@@ -113,6 +113,11 @@ def puzzle_5():
             local_j = cuda.threadIdx.y
             # FILL ME IN (roughly 2 lines)
 
+            if local_i >= size or local_j >= size:
+                return
+
+            out[local_i, local_j] = a[local_i, 0] + b[0, local_j]
+
         return call
 
     SIZE = 2
