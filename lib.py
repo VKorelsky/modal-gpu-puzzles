@@ -5,7 +5,7 @@ from typing import Any, List
 
 import chalk
 import numba
-import numpy as np
+import cupy as np
 from chalk import *
 from colour import Color
 from numba import cuda
