@@ -1,5 +1,4 @@
 import modal
-from src.puzzles import puzzle_11
 
 image = (
     modal.Image.from_registry("nvidia/cuda:12.4.0-devel-ubuntu22.04", add_python="3.11")
@@ -18,10 +17,18 @@ app = modal.App("gpu-puzzles", image=image)
 
 @app.function(gpu="T4", max_containers=1)
 def modal_wrapper():
+    # import must be within the modal wrapper, otherwise imports will be resolved when app.py is run - and we don't have any of the required deps
+    from src.puzzles import puzzle_11
+
     puzzle_11()
 
 
-@app.local_entrypoint()
 def main():
-    print("hello world!")
-    print(modal_wrapper.remote())
+    with modal.enable_output():
+        with app.run():
+            print("hello world!")
+            print(modal_wrapper.remote())
+
+
+if __name__ == "__main__":
+    main()

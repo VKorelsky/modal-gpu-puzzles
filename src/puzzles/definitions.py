@@ -1,11 +1,12 @@
+import numba
+import cupy as np
+import warnings
+from src.lib import CudaProblem, Coord
+
+warnings.filterwarnings(action="ignore", category=numba.NumbaPerformanceWarning, module="numba")
+
+
 def puzzle_11():
-    import numba
-    import cupy as np
-    import warnings
-    from src.lib import CudaProblem, Coord
-
-    warnings.filterwarnings(action="ignore", category=numba.NumbaPerformanceWarning, module="numba")
-
     def conv_spec(a, b):
         out = np.zeros(*a.shape)
         len = b.shape[0]
