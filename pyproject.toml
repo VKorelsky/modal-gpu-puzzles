@@ -3,7 +3,7 @@ name = "gpu-puzzle"
 version = "0.1.0"
 description = "Wrapper around the gpu puzzles meant to run on monad gpus"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.11.*"
 dependencies = ["modal"]
 
 [project.scripts]
