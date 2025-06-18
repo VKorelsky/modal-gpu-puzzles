@@ -221,6 +221,10 @@ def puzzle_8():
                 cuda.syncthreads()
 
             # FILL ME IN (roughly 2 lines)
+            if i >= size:
+                return 
+            
+            out[i] = shared[local_i] + 10
 
         return call
 
