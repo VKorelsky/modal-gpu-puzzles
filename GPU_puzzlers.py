@@ -1,3 +1,4 @@
+# %%
 # # GPU Puzzles
 # - by [Sasha Rush](http://rush-nlp.com) - [srush_nlp](https://twitter.com/srush_nlp)
 
@@ -30,9 +31,9 @@
 # (If you are into this style of puzzle, also check out my [Tensor
 # Puzzles](https://github.com/srush/Tensor-Puzzles) for PyTorch.)
 
-!pip install -qqq git+https://github.com/danoneata/chalk@srush-patch-1
+!pip3 install -qqq git+https://github.com/danoneata/chalk@srush-patch-1
 !wget -q https://github.com/srush/GPU-Puzzles/raw/main/robot.png https://github.com/srush/GPU-Puzzles/raw/main/lib.py
-
+# %%
 
 import numba
 import numpy as np
@@ -63,6 +64,7 @@ warnings.filterwarnings(
 # *Tip: Think of the function `call` as being run 1 time for each thread.
 # The only difference is that `cuda.threadIdx.x` changes each time.*
 
+# %%
 # +
 def map_spec(a):
     return a + 10
@@ -72,6 +74,7 @@ def map_test(cuda):
     def call(out, a) -> None:
         local_i = cuda.threadIdx.x
         # FILL ME IN (roughly 1 lines)
+        out[local_i] = a[local_i] + 1
 
     return call
 
@@ -83,11 +86,11 @@ problem = CudaProblem(
     "Map", map_test, [a], out, threadsperblock=Coord(SIZE, 1), spec=map_spec
 )
 problem.show()
-
 # +
+# %%
 problem.check()
 # -
-
+# %%
 # ## Puzzle 2 - Zip
 #
 # Implement a kernel that adds together each position of `a` and `b` and stores it in `out`.
