@@ -1,4 +1,3 @@
-import random
 from collections import Counter
 from dataclasses import dataclass
 from typing import Any, List
@@ -371,60 +370,6 @@ class CudaProblem:
         try:
             np.testing.assert_allclose(x, y)
             print("Passed Tests!")
-            from IPython.display import HTML
-
-            pups = [
-                "2m78jPG",
-                "pn1e9TO",
-                "MQCIwzT",
-                "udLK6FS",
-                "ZNem5o3",
-                "DS2IZ6K",
-                "aydRUz8",
-                "MVUdQYK",
-                "kLvno0p",
-                "wScLiVz",
-                "Z0TII8i",
-                "F1SChho",
-                "9hRi2jN",
-                "lvzRF3W",
-                "fqHxOGI",
-                "1xeUYme",
-                "6tVqKyM",
-                "CCxZ6Wr",
-                "lMW0OPQ",
-                "wHVpHVG",
-                "Wj2PGRl",
-                "HlaTE8H",
-                "k5jALH0",
-                "3V37Hqr",
-                "Eq2uMTA",
-                "Vy9JShx",
-                "g9I2ZmK",
-                "Nu4RH7f",
-                "sWp0Dqd",
-                "bRKfspn",
-                "qawCMl5",
-                "2F6j2B4",
-                "fiJxCVA",
-                "pCAIlxD",
-                "zJx2skh",
-                "2Gdl1u7",
-                "aJJAY4c",
-                "ros6RLC",
-                "DKLBJh7",
-                "eyxH0Wc",
-                "rJEkEw4",
-            ]
-            return HTML(
-                """
-            <video alt="test" controls autoplay=1>
-                <source src="https://openpuppies.com/mp4/%s.mp4"  type="video/mp4">
-            </video>
-            """
-                % (random.sample(pups, 1)[0])
-            )
-
         except AssertionError:
             print("Failed Tests.")
             print("Yours:", x)
