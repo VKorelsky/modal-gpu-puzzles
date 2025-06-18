@@ -222,8 +222,8 @@ def puzzle_8():
 
             # FILL ME IN (roughly 2 lines)
             if i >= size:
-                return 
-            
+                return
+
             out[i] = shared[local_i] + 10
 
         return call
@@ -260,6 +260,18 @@ def puzzle_9():
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 8 lines)
+
+            shared[i] = a[i]
+            cuda.syncthreads()
+
+            left = max(0, i - 2)
+            right = i + 1
+
+            res = 0
+            for a_idx in range(left, right):
+                res += shared[a_idx]
+
+            out[i] = res
 
         return call
 
