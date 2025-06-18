@@ -34,6 +34,7 @@ def puzzle_2():
         def call(out, a, b) -> None:
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 1 lines)
+            out[local_i] = a[local_i] + b[local_i]
 
         return call
 
@@ -54,6 +55,11 @@ def puzzle_3():
         def call(out, a, size) -> None:
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 2 lines)
+            
+            if local_i >= size:
+                return 
+            
+            out[local_i] = a[local_i] + 10
 
         return call
 
