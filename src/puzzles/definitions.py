@@ -301,10 +301,22 @@ def puzzle_10():
     def dot_test(cuda):
         def call(out, a, b, size) -> None:
             shared = cuda.shared.array(TPB, numba.float32)
-
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 9 lines)
+            # dot product is sum[0:n] => a[i] * b[i]
+
+            product = a[i] * b[i]
+            shared[i] = product
+            cuda.syncthreads()
+
+            # execute only on last thread
+            if i == size - 1:
+                res = 0
+                for i in range(size):
+                    res += shared[i]
+
+                out[0] = res
 
         return call
 
