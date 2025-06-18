@@ -172,50 +172,30 @@ class Cuda:
 
 black = Color("black")
 white = Color("white")
-im = image(
-    "robot.png", "https://raw.githubusercontent.com/minitorch/diagrams/main/robot.png"
-).scale_uniform_to_x(1)
+im = image("robot.png", "https://raw.githubusercontent.com/minitorch/diagrams/main/robot.png").scale_uniform_to_x(1)
 colors = list(Color("red").range_to(Color("blue"), 10))
 
 
 def table(name, r, c):
     if r == 0:
-        return concat(
-            [rectangle(1, 1).translate(0, j).named((name, j)) for j in range(c)]
-        ).center_xy()
-    return concat(
-        [
-            rectangle(1, 1).translate(i, j).named((name, i, j))
-            for i in range(r)
-            for j in range(c)
-        ]
-    ).center_xy()
+        return concat([rectangle(1, 1).translate(0, j).named((name, j)) for j in range(c)]).center_xy()
+    return concat([rectangle(1, 1).translate(i, j).named((name, i, j)) for i in range(r) for j in range(c)]).center_xy()
 
 
 def myconnect(diagram, loc, color, con, name1, name2):
     bb1 = diagram.get_subdiagram_envelope(name1)
     bb2 = diagram.get_subdiagram_envelope(name2)
-    assert bb1 is not None, (
-        f"{name1}: You may be reading/writing from an un'synced array"
-    )
-    assert bb2 is not None, (
-        f"{name2}: You may be reading/writing from an un'synced array"
-    )
+    assert bb1 is not None, f"{name1}: You may be reading/writing from an un'synced array"
+    assert bb2 is not None, f"{name2}: You may be reading/writing from an un'synced array"
     off = P2(loc[0] - 0.5, loc[1] - 0.5) * 0.85
     dia = empty()
     if con:
-        dia += (
-            arc_between(bb1.center - V2(0.5, 0), bb2.center + off, 0)
-            .line_width(0.04)
-            .line_color(color)
-        )
+        dia += arc_between(bb1.center - V2(0.5, 0), bb2.center + off, 0).line_width(0.04).line_color(color)
     dia += place_at(
         [rectangle(0.95, 0.95).fill_opacity(0).line_color(color).line_width(0.15)],
         [bb1.center],
     )
-    dia += place_at(
-        [circle(0.1).line_width(0.04).fill_color(color)], [bb2.center + off]
-    )
+    dia += place_at([circle(0.1).line_width(0.04).fill_color(color)], [bb2.center + off])
     return dia
 
 
@@ -245,9 +225,7 @@ def grid(mat, sep):
 
 def draw_base(_, a, c, out):
     inputs = vcat([draw_table(d) for d in a], 2.0).center_xy()
-    shared_tables = [
-        [draw_table(c2.refs[i]) for i in range(1, c.rounds())] for c2 in c.caches
-    ]
+    shared_tables = [[draw_table(c2.refs[i]) for i in range(1, c.rounds())] for c2 in c.caches]
     shareds = grid(shared_tables, 1.0).center_xy()
     outputs = draw_table(out).center_xy()
     return hcat([inputs, shareds, outputs], 2.0)
@@ -256,9 +234,7 @@ def draw_base(_, a, c, out):
 def draw_coins(tpbx, tpby):
     return concat(
         [
-            (circle(0.5).fill_color(colors[tt]).fill_opacity(0.7) + im).translate(
-                pos.x * 1.1, pos.y * 1.1
-            )
+            (circle(0.5).fill_color(colors[tt]).fill_opacity(0.7) + im).translate(pos.x * 1.1, pos.y * 1.1)
             for tt, pos in Coord(tpbx, tpby).enumerate()
         ]
     )
@@ -286,26 +262,16 @@ def draw_results(results, name, tpbx, tpby, sparse=False):
 
             lines = True
             if sparse:
-                lines = (pos.x == 0 and pos.y == 0) or (
-                    pos.x == (tpbx - 1) and pos.y == (tpby - 1)
-                )
-            all_tabs = (
-                a
-                + [c2.refs[i] for i in range(1, c.rounds()) for c2 in c.caches]
-                + [out]
-            )
-            dia = dia + concat(
-                draw_connect(t, dia, loc, color, lines) for t in all_tabs
-            )
+                lines = (pos.x == 0 and pos.y == 0) or (pos.x == (tpbx - 1) and pos.y == (tpby - 1))
+            all_tabs = a + [c2.refs[i] for i in range(1, c.rounds()) for c2 in c.caches] + [out]
+            dia = dia + concat(draw_connect(t, dia, loc, color, lines) for t in all_tabs)
         height = dia.get_envelope().height
 
         # Label block and surround
         dia = hstrut(1) | (label(dia, f"Block {block.x} {block.y}")) | hstrut(1)
         dia = dia.center_xy().pad(1.2)
         env = dia.get_envelope()
-        dia = dia + rectangle(env.width, env.height, 0.5).line_color(
-            Color("grey")
-        ).fill_opacity(0.0)
+        dia = dia + rectangle(env.width, env.height, 0.5).line_color(Color("grey")).fill_opacity(0.0)
 
         blocks.append(dia.pad(1.1))
         locations.append(P2(block.x, block.y))
@@ -317,14 +283,7 @@ def draw_results(results, name, tpbx, tpby, sparse=False):
 
     coins = draw_coins(tpbx, tpby)
 
-    full = (
-        vstrut(1.5)
-        / text(name, 1)
-        / vstrut(1)
-        / coins.center_xy()
-        / vstrut(1)
-        / full.center_xy()
-    )
+    full = vstrut(1.5) / text(name, 1) / vstrut(1) / coins.center_xy() / vstrut(1) / full.center_xy()
     full = full.pad(1.1).center_xy()
     env = full.get_envelope()
     set_svg_height(50 * env.height)
@@ -351,9 +310,7 @@ class CudaProblem:
         fn = self.fn
         fn = fn(numba.cuda)
         jitfn = numba.cuda.jit(fn)
-        jitfn[self.blockspergrid.tuple(), self.threadsperblock.tuple()](
-            self.out, *self.inputs, *self.args
-        )
+        jitfn[self.blockspergrid.tuple(), self.threadsperblock.tuple()](self.out, *self.inputs, *self.args)
         return self.out
 
     def run_python(self):
@@ -380,9 +337,7 @@ class CudaProblem:
         for pos, (tt, a, c, out) in results[Coord(0, 0)].items():
             total += 1
             count = Counter()
-            for out, tab in [
-                (False, c2.refs[i]) for i in range(1, c.rounds()) for c2 in c.caches
-            ] + [(True, out)]:
+            for out, tab in [(False, c2.refs[i]) for i in range(1, c.rounds()) for c2 in c.caches] + [(True, out)]:
                 for inc in tab.incoming:
                     if out:
                         count["out_writes"] += 1
@@ -396,19 +351,19 @@ class CudaProblem:
             for k in count:
                 if count[k] > full[k]:
                     full[k] = count[k]
-        print(f"""# {self.name}
+        print(
+            f"""# {self.name}
  
    Score (Max Per Thread):
    | {"Global Reads":>13} | {"Global Writes":>13} | {"Shared Reads":>13} | {"Shared Writes":>13} |
    | {full["in_reads"]:>13} | {full["out_writes"]:>13} | {full["shared_reads"]:>13} | {full["shared_writes"]:>13} | 
-""")
+"""
+        )
 
     def show(self, sparse=False):
         results = self.run_python()
         self.score(results)
-        return draw_results(
-            results, self.name, self.threadsperblock.x, self.threadsperblock.y, sparse
-        )
+        return draw_results(results, self.name, self.threadsperblock.x, self.threadsperblock.y, sparse)
 
     def check(self):
         x = self.run_cuda()
