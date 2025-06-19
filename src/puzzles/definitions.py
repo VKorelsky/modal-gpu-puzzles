@@ -512,6 +512,27 @@ def puzzle_12():
     problem.show()
     problem.check()
 
+    #### Test 3 ####
+    SIZE = 100
+    nb_blocks = SIZE // TPB + 1
+    
+    out = np.zeros(nb_blocks)
+    inp = np.arange(SIZE)
+    
+
+    problem = CudaProblem(
+        "Sum (larger input)",
+        sum_test,
+        [inp],
+        out,
+        (SIZE,),
+        Coord(nb_blocks, 1),
+        Coord(TPB, 1),
+        spec=sum_spec,
+    )
+    problem.show()
+    problem.check()
+
 
 def puzzle_13():
     TPB = 8
