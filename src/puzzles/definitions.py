@@ -1,3 +1,4 @@
+from threading import local
 import numba
 import cupy as np
 import warnings
@@ -443,6 +444,8 @@ def puzzle_12():
             if i >= size:
                 return
 
+            # cur best is 13 shared reads
+
             rightmost_thread_local_i = TPB - 1
             max_i_in_block = cuda.blockIdx.x * cuda.blockDim.x + TPB - 1
 
@@ -452,9 +455,8 @@ def puzzle_12():
             cache[local_i] = a[i]
             cuda.syncthreads()
 
-            for iteration in range(1, TPB // 2):
+            for iteration in range(1, (rightmost_thread_local_i + 1) // 2 + 1):
                 window_size = iteration * 2
-
                 distance_to_last_thread_in_block = rightmost_thread_local_i - local_i
                 should_sum = distance_to_last_thread_in_block % window_size == 0
 
@@ -479,7 +481,7 @@ def puzzle_12():
         return call
 
     #### Test 1 ####
-    SIZE = 8
+    SIZE = 6
     out = np.zeros(1)
     inp = np.arange(SIZE)
     problem = CudaProblem(
@@ -515,10 +517,9 @@ def puzzle_12():
     #### Test 3 ####
     SIZE = 100
     nb_blocks = SIZE // TPB + 1
-    
+
     out = np.zeros(nb_blocks)
     inp = np.arange(SIZE)
-    
 
     problem = CudaProblem(
         "Sum (larger input)",
