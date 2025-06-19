@@ -425,6 +425,9 @@ def puzzle_11():
 def puzzle_12():
     TPB = 8
 
+    # implement a kernel that computes a sum over a and stores it in out
+    # if the size of a is greater than the block size, only store the sum of each block
+
     def sum_spec(a):
         out = np.zeros((a.shape[0] + TPB - 1) // TPB)
         for j, i in enumerate(range(0, a.shape[-1], TPB)):
@@ -437,6 +440,41 @@ def puzzle_12():
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 12 lines)
+            if i >= size:
+                return
+
+            rightmost_thread_local_i = TPB - 1
+            max_i_in_block = cuda.blockIdx.x * cuda.blockDim.x + TPB - 1
+
+            if max_i_in_block >= size:
+                rightmost_thread_local_i = size % TPB - 1
+
+            cache[local_i] = a[i]
+            cuda.syncthreads()
+
+            for iteration in range(1, TPB // 2):
+                window_size = iteration * 2
+
+                distance_to_last_thread_in_block = rightmost_thread_local_i - local_i
+                should_sum = distance_to_last_thread_in_block % window_size == 0
+
+                if should_sum:
+                    left = local_i - 1
+                    window_boundary = local_i - (window_size - 1)
+
+                    res = cache[local_i]
+                    while left >= 0 and left >= window_boundary:
+                        res += cache[left]
+                        left -= 1
+
+                    cache[local_i] = res
+                else:
+                    cache[local_i] = 0
+
+                cuda.syncthreads()
+
+            if local_i == rightmost_thread_local_i:
+                out[cuda.blockIdx.x] = cache[local_i]
 
         return call
 
