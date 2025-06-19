@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Wrapper around the gpu puzzles meant to run on monad gpus"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["modal"]
+dependencies = [
+    "modal",
+    "numba>=0.61.2",
+]
 
 [project.scripts]
 test = "src.app:main"

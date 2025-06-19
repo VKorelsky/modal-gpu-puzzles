@@ -344,18 +344,46 @@ def puzzle_11():
         len = b.shape[0]
         for i in range(a.shape[0]):
             out[i] = sum([a[i + j] * b[j] for j in range(len) if i + j < a.shape[0]])
+
         return out
 
-    MAX_CONV = 4
     TPB = 8
-    TPB_MAX_CONV = TPB + MAX_CONV
 
     def conv_test(cuda):
+        # Target
+        # 2 global reads
+        # 1 global write
         def call(out, a, b, a_size, b_size) -> None:
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
-
             # FILL ME IN (roughly 17 lines)
+            shared_a = cuda.shared.array(TPB, numba.float32)
+            shared_b = cuda.shared.array(TPB, numba.float32)
+
+            if i >= a_size:
+                return
+
+            shared_a[local_i] = a[i]
+
+            if local_i < b_size:
+                shared_b[local_i] = b[local_i]
+
+            cuda.syncthreads()
+
+            left = local_i
+            right = local_i + b_size
+
+            if i + b_size >= a_size:
+                right = TPB
+
+            res = 0
+            for idx_conv, idx_a in enumerate(range(left, right)):
+                if idx_a >= TPB:
+                    res += a[idx_a] * shared_b[idx_conv]
+                else:
+                    res += shared_a[idx_a] * shared_b[idx_conv]
+
+            out[i] = res
 
         return call
 
