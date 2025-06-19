@@ -348,16 +348,15 @@ def puzzle_11():
         return out
 
     TPB = 8
+    MAX_CONV = 4
+    MAX_BOUNDARY_OVERFLOW = TPB + MAX_CONV - 1
 
     def conv_test(cuda):
-        # Target
-        # 2 global reads
-        # 1 global write
         def call(out, a, b, a_size, b_size) -> None:
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
             # FILL ME IN (roughly 17 lines)
-            shared_a = cuda.shared.array(TPB, numba.float32)
+            shared_a = cuda.shared.array(MAX_BOUNDARY_OVERFLOW, numba.float32)
             shared_b = cuda.shared.array(TPB, numba.float32)
 
             if i >= a_size:
@@ -368,19 +367,17 @@ def puzzle_11():
             if local_i < b_size:
                 shared_b[local_i] = b[local_i]
 
+            if local_i + b_size - 1 >= TPB and i + b_size - 1 < a_size:
+                shared_a[local_i + b_size - 1] = a[i + b_size - 1]
+
             cuda.syncthreads()
 
             left = local_i
             right = local_i + b_size
 
-            if i + b_size >= a_size:
-                right = TPB
-
             res = 0
             for idx_conv, idx_a in enumerate(range(left, right)):
-                if idx_a >= TPB:
-                    res += a[idx_a] * shared_b[idx_conv]
-                else:
+                if i + idx_conv < a_size:
                     res += shared_a[idx_a] * shared_b[idx_conv]
 
             out[i] = res
