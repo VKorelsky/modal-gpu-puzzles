@@ -426,9 +426,6 @@ def puzzle_11():
 def puzzle_12():
     TPB = 8
 
-    # implement a kernel that computes a sum over a and stores it in out
-    # if the size of a is greater than the block size, only store the sum of each block
-
     def sum_spec(a):
         out = np.zeros((a.shape[0] + TPB - 1) // TPB)
         for j, i in enumerate(range(0, a.shape[-1], TPB)):
@@ -443,8 +440,6 @@ def puzzle_12():
             # FILL ME IN (roughly 12 lines)
             if i >= size:
                 return
-
-            # cur best is 13 shared reads
 
             rightmost_thread_local_i = TPB - 1
             max_i_in_block = cuda.blockIdx.x * cuda.blockDim.x + TPB - 1
