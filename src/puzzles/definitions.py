@@ -21,7 +21,7 @@ def puzzle_1():
 
     SIZE = 4
     out = np.zeros((SIZE,))
-    a = np.arange(SIZE)
+    a = np.arange(SIZE)[1, 2, 3, 4, 4, 5, 6]
     problem = CudaProblem("Map", map_test, [a], out, threadsperblock=Coord(SIZE, 1), spec=map_spec)
     problem.show()
     problem.check()
@@ -88,6 +88,8 @@ def puzzle_4():
         def call(out, a, size) -> None:
             local_i = cuda.threadIdx.x
             local_j = cuda.threadIdx.y
+
+            print(local_i, local_j)
             # FILL ME IN (roughly 2 lines)
             if local_j >= size or local_i >= size:
                 return
@@ -217,6 +219,8 @@ def puzzle_8():
             i = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
             local_i = cuda.threadIdx.x
 
+            print(i, local_i)
+
             if i < size:
                 shared[local_i] = a[i]
                 cuda.syncthreads()
@@ -225,7 +229,7 @@ def puzzle_8():
             if i >= size:
                 return
 
-            out[i] = shared[local_i] + 10
+            out[i] = shared[local_i + 1] + 10
 
         return call
 
@@ -351,6 +355,14 @@ def puzzle_11():
     TPB = 8
     MAX_CONV = 4
     MAX_BOUNDARY_OVERFLOW = TPB + MAX_CONV - 1
+
+    # [1,2,3,4, ||| 5,6,7,8] (product) 2
+
+    # [1,2] ->2
+    # [2,3] -> 6
+    # [3,4] -> 12
+
+    # [2,6,12]
 
     def conv_test(cuda):
         def call(out, a, b, a_size, b_size) -> None:
@@ -539,6 +551,7 @@ def puzzle_13():
             out[..., j] = a[..., i : i + TPB].sum(-1)
         return out
 
+    # Implement a kernel that computes a sum over each column of `a` and stores it in `out`.
     def axis_sum_test(cuda):
         def call(out, a, size: int) -> None:
             cache = cuda.shared.array(TPB, numba.float32)
@@ -546,21 +559,40 @@ def puzzle_13():
             local_i = cuda.threadIdx.x
             batch = cuda.blockIdx.y
             # FILL ME IN (roughly 12 lines)
+            #       0                     8               0-7             0-3
+            # print(cuda.blockIdx.x, cuda.blockDim.x, cuda.threadIdx.x, cuda.blockIdx.y)
+
+            if local_i >= size:
+                return
+
+            cache[local_i] = a[batch, local_i]
+            cuda.syncthreads()
+
+            if local_i == size - 1:
+                # compute sum on the last thread
+                total = 0
+                for i in range(size):
+                    total += cache[i]
+
+                out[batch, 0] = total
 
         return call
 
     BATCH = 4
     SIZE = 6
     out = np.zeros((BATCH, 1))
+    print(out)
+
     inp = np.arange(BATCH * SIZE).reshape((BATCH, SIZE))
+    print(inp)
     problem = CudaProblem(
-        "Axis Sum",
-        axis_sum_test,
-        [inp],
-        out,
-        (SIZE,),
-        Coord(1, BATCH),
-        Coord(TPB, 1),
+        name="Axis Sum",
+        fn=axis_sum_test,
+        inputs=[inp],
+        out=out,
+        args=(SIZE,),
+        blockspergrid=Coord(1, BATCH),
+        threadsperblock=Coord(TPB, 1),
         spec=sum_spec,
     )
     problem.show()
